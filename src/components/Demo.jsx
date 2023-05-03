@@ -1,12 +1,35 @@
 import React from 'react'
 import { useState , useEffect } from 'react'
 import {copy, linkIcon, loader, tick} from '../assets';
+import { useLazyGetSummaryQuery } from '../services/article';
 
 function Demo() {
   const [article ,setArticle] = useState({url:'',summary:''})
+  const [allArticles,setAllArticles] = useState([]);
+  
 
+  const [getSummery,{ error, isFetching }] = useLazyGetSummaryQuery();
+  useEffect(()=>{
+    const articlesFromLocalStorage = JSON.parse(
+      localStorage.getItem('articles')
+    )
+    if (articlesFromLocalStorage){
+      setAllArticles(articlesFromLocalStorage)
+    }
+  },[]);
+  
   const handleSubmit = async (e)=>{
-    
+    e.preventDefault();
+    const { data } = await getSummery({ articleUrl : article.url });
+
+    if(data?.summary){
+      const newArticle = {...article,summary:data.summary};
+      const updatedAllArticles = [newArticle, ...allArticles ];
+      setArticle(newArticle);
+      setAllArticles(updatedAllArticles);
+      console.log(newArticle);
+      localStorage.setItem('articles',JSON.stringify(updatedAllArticles));
+    }
   }
   return (
     <section className="mt-16 w-full max-w-xl">
@@ -22,6 +45,17 @@ function Demo() {
           <button type='submit' className='submit_btn peer-focus:border-gray-700 peer-focus:text-gray-700'>⤶</button>
         </form>
         {/* Browser URl History */}
+        <div className="flex flex-col gap-1 max-h-60 overflow-y-auto">
+          {allArticles.map((item,index)=>(
+            <div key={`link-${index}`}onClick={()=>setArticle(item)} className='link_card'>
+              <div className="copy_btn">
+                <img src={copy} alt="copy_icon"
+                className="w-[40%] h-[40%] object-contain"/>
+              </div>
+              <p>{item.url}</p>
+            </div>
+          ))}
+        </div>
 
       </div>
       {/* display Result */}
