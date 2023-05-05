@@ -6,7 +6,7 @@ function Hero() {
         <nav className="w-full flex justify-between items-center flex-row mb-10 pt-10"> 
             <img src={logo} alt="Sumz-logo" className='w-28 object-contain'/>
             <button type='button' onClick={()=>{
-                window.open("https://github.com");
+                window.open("https://github.com/Mohamed-shabil/ai_summarizer");
             }} className='black_btn'>
                 Github
             </button>
